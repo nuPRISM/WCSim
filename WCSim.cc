@@ -8,6 +8,8 @@
 #include "WCSimPhysicsMessenger.hh"
 #include "WCSimPhysicsListFactory.hh"
 #include "WCSimPhysicsListFactoryMessenger.hh"
+#include "WCSimOpticalPhotonMessenger.hh"
+#include "WCSimOpticalPhotonTrackInfo.hh"
 #include "WCSimTuningParameters.hh"
 #include "WCSimTuningMessenger.hh"
 #include "WCSimPrimaryGeneratorAction.hh"
@@ -45,6 +47,8 @@ int main(int argc,char** argv)
   WCSimDetectorConstruction* WCSimdetector = new 
     WCSimDetectorConstruction(WCSimConfiguration,tuningpars);
 
+  WCSimOpticalPhotonTrackInfo::instance();
+  
   runManager->SetUserInitialization(WCSimdetector);
 
   // Added selectable physics lists 2010-07 by DMW

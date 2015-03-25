@@ -12,11 +12,15 @@
 #include "G4PVReplica.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
-
+#include "WCSimOpticalPhotonTrackInfo.hh"
 
 void WCSimSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   //DISTORTION must be used ONLY if INNERTUBE or INNERTUBEBIG has been defined in BidoneDetectorConstruction.cc
+
+  WCSimOpticalPhotonTrackInfo* trackInfo = WCSimOpticalPhotonTrackInfo::instance();
+  // for each optical photon, record the intial position                                                                                                                 
+  trackInfo->UserSteppingAction( aStep ); // returns immediately if not enabled   
   
   const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
 
