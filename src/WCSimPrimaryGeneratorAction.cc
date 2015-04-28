@@ -103,6 +103,14 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // Temporary kludge to turn on/off vector text format 
     G4bool useNuanceTextFormat = true;
 
+    //
+    // Documentation describing the nuance text format can be found here: 
+    // http://neutrino.phy.duke.edu/nuance-format/
+    //
+    // The format must be strictly adhered to for it to be processed correctly.
+    // The lines and their meanings from begin through info are fixed, and then
+    // a variable number of tracks may follow.
+    //
     // Do for every event
     if (useMulineEvt)
     { 
@@ -252,7 +260,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         yDir=fTmpRootrackerVtx->StdHepP4[0][1];
         zDir=fTmpRootrackerVtx->StdHepP4[0][2];
 
-	// Calculate offset from neutrino generation plane to centre of nuPRISM detector (in metres)
+        // Calculate offset from neutrino generation plane to centre of nuPRISM detector (in metres)
         double z_offset = fNuPlanePos[2]/100.0 + fNuPrismRadius;
         double y_offset = 0;//fNuPlanePos[1]/100.0 + (fNuPrismRadius/zDir)*yDir;
 
@@ -289,7 +297,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         //i = 2 is the target nucleon
         //i > 2 are the outgoing particles
 
-	// First simulate the incoming neutrino
+        // First simulate the incoming neutrino
         xDir=fTmpRootrackerVtx->StdHepP4[0][0];
         yDir=fTmpRootrackerVtx->StdHepP4[0][1];
         zDir=fTmpRootrackerVtx->StdHepP4[0][2];
@@ -311,7 +319,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         // particleGun->SetParticleTime(time);
         particleGun->GeneratePrimaryVertex(anEvent);  //Place vertex in stack
 
-	// Now simulate the outgoing particles
+        // Now simulate the outgoing particles
         for (int i = 3; i < fTmpRootrackerVtx->StdHepN; i++){
 
             xDir=fTmpRootrackerVtx->StdHepP4[i][0];
@@ -345,7 +353,6 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     }
     else if (useNormalEvt)
     {      // manual gun operation
-
         particleGun->GeneratePrimaryVertex(anEvent);
 
         G4ThreeVector P  =anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum();
