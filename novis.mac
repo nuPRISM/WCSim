@@ -103,6 +103,14 @@
 #/DarkRate/SetConvert 1.120 #For HPDs
 #/DarkRate/SetConvert 1.126 #For Box and Line PMTs
 
+# PMT Saturation options.
+# Random gaussian for the saturation point per PMT per event (similar to SKDetsim method).
+# Commands are optional; defaults are off, mean = 250.0 pe, 1-sigma-width = 10.0 pe.
+#/WCSim/PMTSaturation/DoSaturation false
+#/WCSim/PMTSaturation/SaturationMean 250.0
+#/WCSim/PMTSaturation/SaturationSigma 10.0
+
+
 #/gun/particle mu- 
 #/gun/particle pi0
 #/gun/energy 500 MeV

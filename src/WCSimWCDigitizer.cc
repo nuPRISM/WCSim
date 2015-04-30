@@ -406,6 +406,13 @@ void WCSimWCDigitizer::DigitizeGate(WCSimWCDigitsCollection* WCHCPMT,G4int G)
       //check if hits in PMT are above threshold
       WCSimWCDigitizer::Threshold(peSmeared,iflag);
       peSmeared *= efficiency; // MC tuning correction
+
+
+      // PMT saturation. Simple gaussian model for random saturation point.
+      if (myDetector->GetDoSaturation() == true) {
+        double saturation_level = G4RandGauss::shoot(myDetector->GetSaturationMean(), myDetector->GetSaturationSigma() );
+        if (peSmeared > saturation_level) peSmeared = saturation_level;
+      }
     
    
     
