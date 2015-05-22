@@ -120,6 +120,13 @@ public:
   void   SetPMT_QE_Method(G4int choice){PMT_QE_Method = choice;}
   void   SetPMT_Coll_Eff(G4int choice){PMT_Coll_Eff = choice;}
 
+  void SetDoSaturation(G4bool choice)      {DoSaturation=choice;}
+  void SetSaturationMean(G4double choice)  {SaturationMean=choice;}
+  void SetSaturationSigma(G4double choice) {SaturationSigma=choice;}
+  G4bool   GetDoSaturation()    {return DoSaturation;}
+  G4double GetSaturationMean()  {return SaturationMean;}
+  G4double GetSaturationSigma() {return SaturationSigma;}
+
   //Partition Length
   void SetwaterTank_Length(G4double length){waterTank_Length = length;}
   void SetWaterTubeLength(G4double length){WCLength = length;}
@@ -264,6 +271,10 @@ private:
   typedef std::pair<G4double, G4double> PMTKey_t;
   typedef std::map<PMTKey_t, G4LogicalVolume*> PMTMap_t;
   static PMTMap_t PMTLogicalVolumes;
+
+  G4bool DoSaturation;
+  G4double SaturationMean;
+  G4double SaturationSigma;
 
   // WC geometry parameters
 

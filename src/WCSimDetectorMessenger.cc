@@ -4,7 +4,9 @@
 #include "G4UIdirectory.hh"
 #include "G4UIcommand.hh"
 #include "G4UIparameter.hh"
+#include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 
 WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimDet)
@@ -93,6 +95,23 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   PMTCollEff->AvailableForStates(G4State_PreInit, G4State_Idle);
 
 
+  // PMT saturation commands. Currently a gaussian model (saturation off/on, mean, sigma)
+  PMTSaturation = new G4UIcmdWithABool("/WCSim/PMTSaturation/DoSaturation",this);
+  PMTSaturation->SetGuidance("Turn on PMT saturation (boolean, default is false).");
+  PMTSaturation->SetParameterName("DoSaturation", true);
+  PMTSaturation->SetDefaultValue(false);
+
+  PMTSaturationMean = new G4UIcmdWithADouble("/WCSim/PMTSaturation/SaturationMean", this);
+  PMTSaturationMean->SetGuidance("The mean value where PMT hits are saturated (double, default is 250.0).");
+  PMTSaturationMean->SetParameterName("SaturationMean", true);
+  PMTSaturationMean->SetDefaultValue(250.);
+
+  PMTSaturationSigma = new G4UIcmdWithADouble("/WCSim/PMTSaturation/SaturationSigma", this);
+  PMTSaturationSigma->SetGuidance("The 1-sigma gaussian width (double, default is 10.0).");
+  PMTSaturationSigma->SetParameterName("SaturationSigma", true);
+  PMTSaturationSigma->SetDefaultValue(10.);
+
+
   waterTank_Length = new G4UIcmdWithADoubleAndUnit("/WCSim/HyperK/waterTank_Length", this);
   waterTank_Length->SetGuidance("Set the Length of Hyper-K detector (unit: mm cm m).");
   waterTank_Length->SetParameterName("waterTank_length", true);
@@ -162,6 +181,10 @@ WCSimDetectorMessenger::~WCSimDetectorMessenger()
   delete PMTQEMethod;
   delete PMTCollEff;
   delete waterTank_Length;
+
+  delete PMTSaturation;
+  delete PMTSaturationMean;
+  delete PMTSaturationSigma;
 
   delete SetDetectorDiameter;
   delete SetDetectorHeight;
@@ -259,6 +282,13 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 	  }
 	  G4cout << G4endl;
 	}
+
+    else if (command == PMTSaturation)
+        WCSimDetector->SetDoSaturation( PMTSaturation->GetNewBoolValue(newValue) );
+    else if (command == PMTSaturationMean)
+        WCSimDetector->SetSaturationMean( PMTSaturationMean->GetNewDoubleValue(newValue) );
+    else if (command == PMTSaturationSigma)
+        WCSimDetector->SetSaturationSigma( PMTSaturationMean->GetNewDoubleValue(newValue) );
 	
 	if (command == waterTank_Length){
 	bool isHyperK = WCSimDetector->GetIsHyperK();
