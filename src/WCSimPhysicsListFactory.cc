@@ -7,6 +7,8 @@
 #include <G4NeutronCaptureXS.hh>
 #include <G4CrossSectionDataSetRegistry.hh>
 #include <G4HadronicInteractionRegistry.hh>
+#include <G4DecayPhysics.hh>
+#include <G4RadioactiveDecayPhysics.hh>
 #include "WCSimPhysicsListFactory.hh"
 
 #include "GdNeutronHPCapture.hh"
@@ -78,7 +80,7 @@ void WCSimPhysicsListFactory::ConstructProcess() {
         G4HadronicInteraction *theNeutronRadCapture = new G4NeutronRadCapture();
 
         if (nCaptModelChoice.compareTo("Rad", G4String::ignoreCase) != 0) {
-            theCaptureProcess->AddDataSet(new G4NeutronHPCaptureData);
+            theCaptureProcess->AddDataSet(new G4ParticleHPCaptureData);
             //G4NeutronHPCapture *theNeutronHPCapture = new G4NeutronHPCapture();
             G4HadronicInteraction *theNeutronHPCapture;
             if (nCaptModelChoice.compareTo("GLG4Sim", G4String::ignoreCase) == 0) {
@@ -86,16 +88,16 @@ void WCSimPhysicsListFactory::ConstructProcess() {
                 theNeutronHPCapture = new GdNeutronHPCapture();
             } else if (nCaptModelChoice.compareTo("HP", G4String::ignoreCase) == 0) {
                 G4cout << "Enabling HP nCapture process" << G4endl;
-                theNeutronHPCapture = new G4NeutronHPCapture();
+                theNeutronHPCapture = new G4ParticleHPCapture();
             }
             else{
                 G4cout << "Unknown model choice. Using HP." << G4endl;
-                theNeutronHPCapture = new G4NeutronHPCapture();
+                theNeutronHPCapture = new G4ParticleHPCapture();
             }
             theNeutronHPCapture->SetMinEnergy(0);
             theNeutronHPCapture->SetMaxEnergy(20 * MeV);
             theCaptureProcess->RegisterMe(theNeutronHPCapture);
-            theCaptureProcess->AddDataSet(new G4NeutronHPCaptureData);
+            theCaptureProcess->AddDataSet(new G4ParticleHPCaptureData);
             theNeutronRadCapture->SetMinEnergy(19.9 * MeV);
         }
         G4cout << "Enabling RadCapture nCapture process" << G4endl;
@@ -147,6 +149,8 @@ void WCSimPhysicsListFactory::InitializeList(){
     }
     G4cout << "RegisterPhysics: OpticalPhysics" << G4endl; 
     RegisterPhysics(new G4OpticalPhysics());
+    RegisterPhysics(new G4DecayPhysics);
+    RegisterPhysics(new G4RadioactiveDecayPhysics);
   } else {
     G4cout << "Physics list " << PhysicsListName << " is not understood" << G4endl;
   }

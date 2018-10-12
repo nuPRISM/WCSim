@@ -27,6 +27,11 @@ WCSimTrackingAction::WCSimTrackingAction()
   ParticleList.insert(-321); // kaon-
   ParticleList.insert(311); // kaon0
   ParticleList.insert(-311); // kaon0 bar
+  
+  ParticleList.insert(11);
+  ParticleList.insert(-11);
+  ParticleList.insert(12);
+  ParticleList.insert(-12);
   // don't put gammas there or there'll be too many
 
   //TF: add protons and neutrons
@@ -58,6 +63,36 @@ void WCSimTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     }
   else 
     fpTrackingManager->SetStoreTrajectory(false);
+
+#if 0
+  { // kill nucleus to prevent segmentation fault
+    G4ParticleDefinition* particle = aTrack->GetDefinition();
+    G4String name   = particle->GetParticleName();
+    G4String partType= particle->GetParticleType();
+    G4int ID = aTrack->GetTrackID();
+    G4double Ekin = aTrack->GetKineticEnergy();
+    G4int PID = aTrack->GetParentID();
+    if ( partType == "nucleus") {
+      G4Track* tr = (G4Track*) aTrack;
+      tr->SetTrackStatus(fStopButAlive);
+      //tr->SetTrackStatus(fStopAndKill);
+    }
+  }
+#endif
+
+#if 1
+  { // kill alphas to prevent segmentation fault
+    G4ParticleDefinition* particle = aTrack->GetDefinition();
+    G4String name   = particle->GetParticleName();
+    
+    if( name == "alpha" ){
+      G4Track* tr = (G4Track*) aTrack;
+      tr->SetTrackStatus(fStopButAlive);
+      //tr->SetTrackStatus(fStopAndKill);
+    }
+  }
+#endif
+
 }
 
 void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack)

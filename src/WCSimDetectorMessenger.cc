@@ -55,6 +55,9 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
 			   "Cylinder_60x74_3inch_14perCent "
 			   "Cylinder_60x74_3inch_40perCent "
 			   "TestSinglemPMT\n"
+                           "HyperK_withHPD "
+			   "surface_detector_3inchPMT_40perCent "
+			   "e61_detector "
                            );
   PMTConfig->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -433,6 +436,13 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
                 } else if ( newValue == "nuPRISMShort_mPMT") {
 		  WCSimDetector->SetIsNuPrism(true);
 		  WCSimDetector->SetNuPrismShort_mPMTGeometry();
+                } else if ( newValue == "HyperK_withHPD") {
+                        WCSimDetector->SetEggShapedHyperKGeometry();
+			WCSimDetector->SetEggShapedHyperKGeometry_withHPD();
+		} else if (newValue == "surface_detector_3inchPMT_40perCent" ){
+		  WCSimDetector->surface_detector_3inchPMT_40perCent();
+		} else if (newValue == "e61_detector" ){
+		  WCSimDetector->e61_detector();
 		} else
 		  G4cout << "That geometry choice is not defined!" << G4endl;
 	}

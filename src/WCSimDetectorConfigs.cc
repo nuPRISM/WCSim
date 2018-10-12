@@ -347,6 +347,56 @@ void WCSimDetectorConstruction::SetEggShapedHyperKGeometry_withHPD()
 }
 
 
+void WCSimDetectorConstruction::surface_detector_3inchPMT_40perCent()
+{
+  WCDetectorName = "surface_detector_3inchPMT_40perCent";
+  WCIDCollectionName = WCDetectorName +"-glassFaceWCPMT";
+  WCSimPMTObject * PMT = CreatePMTObject("PMT3inch", WCIDCollectionName);
+  WCPMTName           = PMT->GetPMTName();
+  WCPMTExposeHeight   = PMT->GetExposeHeight();
+  WCPMTRadius         = PMT->GetRadius();
+  G4cout << " WCPMTName " << WCPMTName << G4endl;
+  WCIDDiameter          = 8.000*m; //16.900*2*cos(2*pi*rad/75)*m; //inner detector diameter
+  WCIDHeight            = 10.000*m; //"" "" height
+  WCBarrelPMTOffset     = 0.0715*m; //offset from vertical
+  WCPMTperCellHorizontal= 4;
+  WCPMTperCellVertical  = 3; 
+  WCPMTPercentCoverage  = 41.0;
+  WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage)/(10.0*WCPMTRadius));
+  WCBarrelNRings           = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))
+                                      /WCPMTperCellVertical));
+  WCCapPMTSpacing       = (pi*WCIDDiameter/WCBarrelNumPMTHorizontal); // distance between centers of top and bottom pmts
+  WCCapEdgeLimit        = WCIDDiameter/2.0 - WCPMTRadius;
+  WCBlackSheetThickness = 2.0*cm;
+  WCAddGd               = true;
+}
+
+
+void WCSimDetectorConstruction::e61_detector()
+{
+  WCDetectorName = "e61_detector";
+  WCIDCollectionName = WCDetectorName +"-glassFaceWCPMT";
+  WCSimPMTObject * PMT = CreatePMTObject("PMT3inch", WCIDCollectionName);
+  WCPMTName           = PMT->GetPMTName();
+  WCPMTExposeHeight   = PMT->GetExposeHeight();
+  WCPMTRadius         = PMT->GetRadius();
+  G4cout << " WCPMTName " << WCPMTName << G4endl;
+  WCIDDiameter          = 8.000*m; //16.900*2*cos(2*pi*rad/75)*m; //inner detector diameter
+  WCIDHeight            = 6.000*m; //"" "" height
+  WCBarrelPMTOffset     = 0.0715*m; //offset from vertical
+  WCPMTperCellHorizontal= 4;
+  WCPMTperCellVertical  = 3; 
+  WCPMTPercentCoverage  = 24.7;
+  WCBarrelNumPMTHorizontal = round(WCIDDiameter*sqrt(pi*WCPMTPercentCoverage)/(10.0*WCPMTRadius));
+  WCBarrelNRings           = round(((WCBarrelNumPMTHorizontal*((WCIDHeight-2*WCBarrelPMTOffset)/(pi*WCIDDiameter)))
+                                      /WCPMTperCellVertical));
+  WCCapPMTSpacing       = (pi*WCIDDiameter/WCBarrelNumPMTHorizontal); // distance between centers of top and bottom pmts
+  WCCapEdgeLimit        = WCIDDiameter/2.0 - WCPMTRadius;
+  WCBlackSheetThickness = 2.0*cm;
+  WCAddGd               = true;
+}
+
+
 /**
  * Transfer egg-shaped HK variables needed elsewhere
  * to their generic WC equivalents.

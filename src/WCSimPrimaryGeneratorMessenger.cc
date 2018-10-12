@@ -5,6 +5,7 @@
 #include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithADouble.hh"
 #include "G4ios.hh"
+#include "G4UIcmdWithABool.hh" //jl145
 
 WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGeneratorAction* pointerToAction)
 :myAction(pointerToAction)
@@ -15,10 +16,15 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
 
-  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker");
+  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, radioactive");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("muline");
-  genCmd->SetCandidates("muline gun laser gps rootracker");
+  genCmd->SetCandidates("muline gun laser gps rootracker radioactive");
+
+  radioactive_time_window_Cmd = new G4UIcmdWithADouble("/mygen/radioactive_time_window",this);
+  radioactive_time_window_Cmd->SetGuidance("Select time window for radioactivity");
+  radioactive_time_window_Cmd->SetParameterName("radioactive_time_window",true);
+  radioactive_time_window_Cmd->SetDefaultValue(0.);
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -39,12 +45,38 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   poisMeanCmd->SetParameterName("poissonMean", true);
   poisMeanCmd->SetDefaultValue(1);
 
+
+  isotopeCmd = new G4UIcmdWithAString("/mygen/isotope",this);
+  isotopeCmd->SetGuidance("Select properties of radioactive isotope");
+  isotopeCmd->SetGuidance("[usage] /mygen/isotope ISOTOPE LOCATION ACTIVITY");
+  isotopeCmd->SetGuidance("     ISOTOPE : Tl208, Bi214, K40");
+  isotopeCmd->SetGuidance("     LOCATION : water PMT");
+  isotopeCmd->SetGuidance("     ACTIVITY : (int) activity of isotope (Bq) ");
+  G4UIparameter* param;
+  param = new G4UIparameter("ISOTOPE",'s',true);
+  param->SetDefaultValue("Tl208");
+  isotopeCmd->SetParameter(param);
+  param = new G4UIparameter("LOCATION",'s',true);
+  param->SetDefaultValue("water");
+  isotopeCmd->SetParameter(param);
+  param = new G4UIparameter("ACTIVITY",'d',true);
+  param->SetDefaultValue("0");
+  isotopeCmd->SetParameter(param);
+
+  StorePhotons = new G4UIcmdWithABool("/mygen/storephotons",this);
+  StorePhotons->SetGuidance("Turn Storing of phtons on/off");
+  StorePhotons->SetParameterName("StorePhotons",false);
+  StorePhotons->SetDefaultValue(0);
+
 }
 
 WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
 {
   delete genCmd;
+  delete radioactive_time_window_Cmd;
   delete mydetDirectory;
+  delete isotopeCmd;
+  delete StorePhotons;
 }
 
 void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
@@ -58,6 +90,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGunEvtGenerator(false);
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
+      myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
     }
     else if ( newValue == "gun")
@@ -66,6 +99,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGunEvtGenerator(true);
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
+      myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
@@ -74,6 +108,16 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGunEvtGenerator(false);
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(true);
+      myAction->SetRadioactiveEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+    }
+    else if ( newValue == "radioactive")
+    {
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetRootrackerEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetRadioactiveEvtGenerator(true);
       myAction->SetGPSEvtGenerator(false);
     }
     else if ( newValue == "gps")
@@ -82,6 +126,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGunEvtGenerator(false);
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
+      myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetGPSEvtGenerator(true);
     }
     else if ( newValue == "rootracker")   //M. Scott: Addition of Rootracker events
@@ -90,6 +135,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRootrackerEvtGenerator(true);
       myAction->SetGunEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
+      myAction->SetRadioactiveEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
     }
   }
@@ -111,6 +157,24 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
     }
   }
 
+  if( command==isotopeCmd )
+  {
+    IsotopeCommand(newValue);
+  }
+
+  if( command==radioactive_time_window_Cmd )
+    {
+      myAction->SetRadioactiveTimeWindow(StoD(newValue));
+    }
+
+  if(command == StorePhotons) {
+    myAction->SetStorePhotons(StorePhotons->GetNewBoolValue(newValue));
+    if(StorePhotons->GetNewBoolValue(newValue))
+      printf("Setting Store Photons On\n");
+    else
+      printf("Setting Store Photons Off\n");
+  }
+
   if( command == poisCmd )
     {
       if ( poisCmd->GetNewBoolValue(newValue) ){
@@ -127,6 +191,21 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
     }
 }
 
+
+ void  WCSimPrimaryGeneratorMessenger::IsotopeCommand(G4String newValue)
+ {
+
+   G4Tokenizer next( newValue );
+
+   G4String isotope = next();
+   G4String location = next();
+   G4double activity = StoD(next());
+
+   myAction->AddRadioactiveSource(isotope, location, activity);
+
+
+ }
+
 G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
 {
   G4String cv;
@@ -139,6 +218,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "gun"; }
     else if(myAction->IsUsingLaserEvtGenerator())
       { cv = "laser"; }   //T. Akiri: Addition of laser
+    else if(myAction->IsUsingRadioactiveEvtGenerator())
+      { cv = "radioactive"; }
     else if(myAction->IsUsingGPSEvtGenerator())
       { cv = "gps"; }
     else if(myAction->IsUsingRootrackerEvtGenerator())

@@ -93,6 +93,8 @@ public:
   void SetNuPrism_mPMTGeometry();
   void SetNuPrismShort_mPMTGeometry();
   void SetDefaultNuPrismGeometry();
+  void surface_detector_3inchPMT_40perCent();
+  void e61_detector();
   void UpdateGeometry();
 
   G4String GetDetectorName()      {return WCDetectorName;}

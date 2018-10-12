@@ -26,7 +26,7 @@
   ,numEle(0)
   {
     SetMinEnergy( 0.0 );
-    SetMaxEnergy( 20.*MeV );
+    SetMaxEnergy( 20.*CLHEP::MeV );
     /*
     G4cout << "Capture : start of construction!!!!!!!!"<<G4endl;
     if(!getenv("G4NEUTRONHPDATA")) 
@@ -83,7 +83,7 @@
   #include "G4NeutronHPThermalBoost.hh"
   G4HadFinalState * GdNeutronHPCapture::ApplyYourself(const G4HadProjectile& aTrack, G4Nucleus& aNucleus )
   {
-    G4NeutronHPManager::GetInstance()->OpenReactionWhiteBoard();
+    G4ParticleHPManager::GetInstance()->OpenReactionWhiteBoard();
     if(getenv("NeutronHPCapture")) G4cout <<" ####### GdNeutronHPCapture called"<<G4endl;
     const G4Material * theMaterial = aTrack.GetMaterial();
     G4int n = theMaterial->GetNumberOfElements();
@@ -124,20 +124,20 @@
     G4HadFinalState* result = (*(*theCapture)[index]).ApplyYourself(aTrack);
 
     //Overwrite target parameters
-    aNucleus.SetParameters(G4NeutronHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargA(),G4NeutronHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargZ());
+    aNucleus.SetParameters(G4ParticleHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargA(),G4ParticleHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargZ());
     const G4Element* target_element = (*G4Element::GetElementTable())[index];
     const G4Isotope* target_isotope=NULL;
     G4int iele = target_element->GetNumberOfIsotopes();
     for ( G4int j = 0 ; j != iele ; j++ ) {
       target_isotope=target_element->GetIsotope( j );
-      if ( target_isotope->GetN() == G4NeutronHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargA() ) break;
+      if ( target_isotope->GetN() == G4ParticleHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargA() ) break;
     }
     //G4cout << "Target Material of this reaction is " << theMaterial->GetName() << G4endl;
     //G4cout << "Target Element of this reaction is " << target_element->GetName() << G4endl;
     //G4cout << "Target Isotope of this reaction is " << target_isotope->GetName() << G4endl;
     aNucleus.SetIsotope( target_isotope );
 
-    G4NeutronHPManager::GetInstance()->CloseReactionWhiteBoard();
+    G4ParticleHPManager::GetInstance()->CloseReactionWhiteBoard();
     return result;
   }
 
@@ -166,7 +166,7 @@ void GdNeutronHPCapture::BuildPhysicsTable(const G4ParticleDefinition&)
       //    G4cout <<"Disname="<<dirName<<" numEle="<<numEle<<G4endl;
 
       //    G4cout <<"G4NeutronHPChannel constructed"<<G4endl;
-      G4NeutronHPCaptureFS * theFS = new G4NeutronHPCaptureFS;
+      G4ParticleHPCaptureFS * theFS = new G4ParticleHPCaptureFS;
       //    OtherHPCaptureFS * theFS = new OtherHPCaptureFS; 
       GdNeutronHPCaptureFS * theGdFS = new GdNeutronHPCaptureFS;
       
@@ -174,7 +174,7 @@ void GdNeutronHPCapture::BuildPhysicsTable(const G4ParticleDefinition&)
   //      G4cout << "initializing theCapture "<<i<<" "<< numEle<<G4endl;
       //    if((*(G4Element::GetElementTable()))[i]->GetName()!="Gadolinium")
          G4cout << (*(G4Element::GetElementTable()))[i]->GetName() << G4endl;
-         (*theCapture).push_back( new G4NeutronHPChannel );
+         (*theCapture).push_back( new G4ParticleHPChannel );
          (*(*theCapture)[i]).Init((*(G4Element::GetElementTable()))[i], dirName);
          if ((*(G4Element::GetElementTable()))[i]->GetZ() != 64) { 
            (*(*theCapture)[i]).Register(theFS);
