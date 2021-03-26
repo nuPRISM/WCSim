@@ -29,3 +29,6 @@ geofile.txt
 data_solar/
 include/WCSimGenerator_Solar.hh
 src/WCSimGenerator_Solar.cc
+
+#ignore sample macros
+sample-root-scripts/
