@@ -13,10 +13,10 @@ build_directory=${wcsim_directory}/../${wcsim_name}-build/ROOT5/${branch_name}
 if [ ! -d ${build_directory} ]; then
 	
 	# Clean G4
-	if [ -d ${G4WORKDIR} ]; then
-		rm -r ${G4WORKDIR}
-	fi
-	rm *.o *.a *.so *~ */*~ src/*Dict*
+	#if [ -d ${G4WORKDIR} ]; then
+	#	rm -r ${G4WORKDIR}
+	#fi
+	#rm *.o *.a *.so *~ */*~ src/*Dict*
 	
 	echo "Creating build directory ${build_directory}"
 	mkdir -p ${build_directory}

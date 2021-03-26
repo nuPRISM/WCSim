@@ -84,6 +84,7 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4bool   useLaserEvt;  //T. Akiri: Laser flag
         G4bool   useGPSEvt;
         G4bool   useRadonEvt; // G. Pronost: Radon flag
+        G4bool   useNiBall; // Pablo: Ni ball calibration
         
         std::fstream inputFile;
         G4String vectorFileName;

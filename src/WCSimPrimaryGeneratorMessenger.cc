@@ -87,6 +87,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "gun")
     {
@@ -96,6 +97,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "rootracker")   //M. Scott: Addition of Rootracker events
     {
@@ -105,6 +107,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
     {
@@ -114,6 +117,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(true);
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "gps")
     {
@@ -123,6 +127,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(true);
       myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "radon" ) //G. Pronost: Addition of Radon generator (based on F. Nova's radioactive generator but dedicated to radioactive events in water)
     {
@@ -131,6 +136,17 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(true);
+      myAction->SetNiBallEvtGenerator(false);
+    }
+    else if ( newValue == "niball" ) // Pablo: Addition of Ni Ball gammas generator (based on SKDetSim's sggvus.F)
+    {
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetRadonEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(true);
+    }
     }
   }
 
@@ -200,6 +216,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "rootracker"; }   //M. Scott: Addition of Rootracker events
     else if(myAction->IsUsingRadonEvtGenerator())
       { cv = "radon"; } // G. Pronost: Addition of Radon generator
+    else if(myAction->IsUsingRadonEvtGenerator())
+      { cv = "niball"; } // Pablo: Addition of Ni ball generator
   }
   
   return cv;

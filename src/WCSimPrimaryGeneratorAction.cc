@@ -78,6 +78,7 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
   useGPSEvt    	= false;
   useRootrackerEvt 	= false;
   useRadonEvt        	= false;
+  useNiBall        	= false;
   
   fEvNum = 0;
   fInputRootrackerFile = NULL;

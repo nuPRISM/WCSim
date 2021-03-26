@@ -79,7 +79,7 @@ void WCSimPhysicsListFactory::ConstructProcess() {
 
         if (nCaptModelChoice.compareTo("Rad", G4String::ignoreCase) != 0) {
             theCaptureProcess->AddDataSet(new G4NeutronHPCaptureData);
-            //G4NeutronHPCapture *theNeutronHPCapture = new G4NeutronHPCapture();
+//Changed
             G4HadronicInteraction *theNeutronHPCapture;
             if (nCaptModelChoice.compareTo("GLG4Sim", G4String::ignoreCase) == 0) {
                 G4cout << "Enabling GLG4Sim HP nCapture process" << G4endl;
