@@ -89,7 +89,11 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         std::fstream inputFile;
         G4String vectorFileName;
         G4bool   GenerateVertexInRock;
-        
+       
+	// Variables for Ni ball
+        double fNiBallPosition[3];
+
+ 
         // Variables for Radioactive and Radon generators
         G4double radioactive_time_window;
 
@@ -181,6 +185,10 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   
         inline void SetRadonSymmetry(G4int choice) 		{ fRnSymmetry = choice; }
         inline G4int GetRadonSymmetry() 			{ return fRnSymmetry; }
+
+	inline void SetNiBallEvtGenerator(G4bool choice)         { useNiBallEvt = choice; }
+        inline G4bool IsUsingNiBallEvtGenerator()                { return useNiBallEvt; }
+
 
         inline void SetPoissonPMT(G4bool choice) { usePoissonPMT = choice; }
         inline G4bool IsUsingPoissonPMT(){ return usePoissonPMT; }

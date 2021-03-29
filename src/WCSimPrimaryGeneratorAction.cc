@@ -1,6 +1,7 @@
 #include "WCSimPrimaryGeneratorAction.hh"
 #include "WCSimDetectorConstruction.hh"
 #include "WCSimPrimaryGeneratorMessenger.hh"
+//#include  "WCSimEventAction.hh"
 
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
@@ -88,6 +89,9 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
   myRn222Generator	= 0;
   fRnScenario		= 0;
   fRnSymmetry		= 1;
+
+  // Nickel calibration variables
+  fNiBalPosition = {0.0,0.0,0.0};
 }
 
 WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
@@ -476,6 +480,35 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       particleGun->SetParticleDefinition(particleTable->FindParticle(particleName="e-"));
       //particleGun->SetParticleEnergy();
 #endif
+    }
+  else if (useNiBallEvt)
+    { //Pablo: add Ni Ball source
+	MyGPS->ClearAll();
+	int gamma_multi = 1;
+	double gamma_pos[3];
+	randGen = new TRandom3();
+	double rn1,rn2,rn3; // Match the geometry of Ni ball (taken from SK)
+	radius = randGet->Rndm() * 2.5;
+	theta  = randGet->Rndm() * 2.0*3.14159265;
+	z      = randGet->Rndm() * 12.0 + 5.0;
+	gamma_pos[0] = fNiBalPositioni[0] + radius*cos(theta);
+	gamma_pos[1] = fNiBalPositioni[1] + radius*sin(theta);
+	gamma_pos[2] = fNiBalPositioni[2] + z - 8.5;
+	G4ThreeVector position = G4ThreeVector(gamma_pos[0]*cm,gamma_pos[1]*cm,gamma_pos[2]*cm);
+	// Get gamma multiplicity
+
+	// Get gamma energy
+
+	for(int kk=0; kk<gamma_multi; kk++){
+	        MyGPS->AddaSource(1.);
+       	 	MyGPS->SetCurrentSourceto(MyGPS->GetNumberofSource() - 1);	
+		MyGPS->SetParticleDefinition(G4Gamma::Definition());
+                MyGPS->GetCurrentSource()->GetEneDist()->SetEnergyDisType("Mono");
+                MyGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(Egamma[kk]);
+                MyGPS->GetCurrentSource()->GetPosDist()->SetPosDisType("Point");
+                MyGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(position);
+        
+	}
     }
   else if (useRadonEvt)
     { //G. Pronost: Add Radon (adaptation of Radioactive event)
