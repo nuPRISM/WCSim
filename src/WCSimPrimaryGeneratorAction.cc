@@ -483,17 +483,21 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     }
   else if (useNiBallEvt)
     { //Pablo: add Ni Ball source
+	if ( !myNiBallGenerator ) {
+        myNiBallGenerator = new WCSimGenerator_NiBall(myDetector);
+//        myNiBallGenerator->Configuration(fRnScenario);
+      }
 	MyGPS->ClearAll();
 	int gamma_multi = 1;
 	double gamma_pos[3];
 	randGen = new TRandom3();
-	double rn1,rn2,rn3; // Match the geometry of Ni ball (taken from SK)
+	double radius, theta, z; // Match the geometry of Ni ball (taken from SK)
 	radius = randGet->Rndm() * 2.5;
 	theta  = randGet->Rndm() * 2.0*3.14159265;
 	z      = randGet->Rndm() * 12.0 + 5.0;
-	gamma_pos[0] = fNiBalPositioni[0] + radius*cos(theta);
-	gamma_pos[1] = fNiBalPositioni[1] + radius*sin(theta);
-	gamma_pos[2] = fNiBalPositioni[2] + z - 8.5;
+	gamma_pos[0] = fNiBalPosition[0] + radius*cos(theta);
+	gamma_pos[1] = fNiBalPosition[1] + radius*sin(theta);
+	gamma_pos[2] = fNiBalPosition[2] + z - 8.5;
 	G4ThreeVector position = G4ThreeVector(gamma_pos[0]*cm,gamma_pos[1]*cm,gamma_pos[2]*cm);
 	// Get gamma multiplicity
 
