@@ -38,6 +38,9 @@ class WCSimPrimaryGeneratorMessenger: public G4UImessenger
   G4UIcmdWithADouble* poisMeanCmd;
   G4UIcmdWithAString* isotopeCmd;
   G4UIcmdWithAString* radonScalingCmd;
+  G4UIcmdWithADouble* niball_x_Cmd;
+  G4UIcmdWithADouble* niball_y_Cmd;
+  G4UIcmdWithADouble* niball_z_Cmd;
   G4UIcmdWithADouble* radioactive_time_window_Cmd;
   G4UIcmdWithAnInteger* radonGeoSymCmd;
   

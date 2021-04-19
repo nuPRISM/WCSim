@@ -15,10 +15,10 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
 
-  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, radon");
+  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, radon, niball");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("muline");
-  genCmd->SetCandidates("muline gun laser gps rootracker radon");
+  genCmd->SetCandidates("muline gun laser gps rootracker radon niball");
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -39,6 +39,19 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   poisMeanCmd->SetParameterName("poissonMean", true);
   poisMeanCmd->SetDefaultValue(1);
 
+  niball_x_Cmd = new G4UIcmdWithADouble("/mygen/niball_x",this);
+  niball_x_Cmd->SetGuidance("Select X position for Nickel Ball");
+  niball_x_Cmd->SetParameterName("niball_x",true);
+  niball_x_Cmd->SetDefaultValue(0.0);
+  niball_y_Cmd = new G4UIcmdWithADouble("/mygen/niball_y",this);
+  niball_y_Cmd->SetGuidance("Select Y position for Nickel Ball");
+  niball_y_Cmd->SetParameterName("niball_y",true);
+  niball_y_Cmd->SetDefaultValue(0.0);
+  niball_z_Cmd = new G4UIcmdWithADouble("/mygen/niball_z",this);
+  niball_z_Cmd->SetGuidance("Select Z position for Nickel Ball");
+  niball_z_Cmd->SetParameterName("niball_z",true);
+  niball_z_Cmd->SetDefaultValue(0.0);
+    
   radioactive_time_window_Cmd = new G4UIcmdWithADouble("/mygen/radioactive_time_window",this);
   radioactive_time_window_Cmd->SetGuidance("Select time window for radioactivity");
   radioactive_time_window_Cmd->SetParameterName("radioactive_time_window",true);
@@ -71,6 +84,9 @@ WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
   delete mydetDirectory;
   delete radonScalingCmd;
   delete radonGeoSymCmd;
+  delete niball_x_Cmd;
+  delete niball_y_Cmd;
+  delete niball_z_Cmd;
   delete radioactive_time_window_Cmd;
 }
 
@@ -138,7 +154,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRadonEvtGenerator(true);
       myAction->SetNiBallEvtGenerator(false);
     }
-    else if ( newValue == "niball" ) // Pablo: Addition of Ni Ball gammas generator (based on SKDetSim's sggvus.F)
+    else if ( newValue == "niball" ) // Pablo: Addition of Ni Ball gammas generator
     {
       myAction->SetMulineEvtGenerator(false);
       myAction->SetGunEvtGenerator(false);
@@ -146,7 +162,6 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGPSEvtGenerator(false);
       myAction->SetRadonEvtGenerator(false);
       myAction->SetNiBallEvtGenerator(true);
-    }
     }
   }
 
@@ -186,7 +201,20 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
     {
       myAction->SetRadioactiveTimeWindow(StoD(newValue));
     }
-  
+ 
+  if ( command==niball_x_Cmd ) 
+    {
+      myAction->SetNiBallX(StoD(newValue));
+    }
+  if ( command==niball_y_Cmd ) 
+    {
+      myAction->SetNiBallY(StoD(newValue));
+    }
+  if ( command==niball_z_Cmd ) 
+    {
+      myAction->SetNiBallZ(StoD(newValue));
+    }
+
   if ( command==radonScalingCmd ) 
     {
       RadonScalingCommand(newValue);

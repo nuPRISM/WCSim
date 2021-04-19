@@ -230,7 +230,12 @@
 #/grdm/BRbias 0
 
 # Nickel calibration
+# For the time being set the coordinates for the center position of the ball in cm.
+# In future modify to select the calibration port and the Z-position of the ball.
 /mygen/generator niball
+/mygen/niball_x 10.0
+/mygen/niball_y -300.0
+/mygen/niball_z 1.0
 #Clear the source and tell GPS to make multiple vertices
 /gps/source/clear
 

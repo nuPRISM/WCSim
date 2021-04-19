@@ -11,11 +11,13 @@
 
 #include "WCSimRootOptions.hh"
 #include "WCSimGenerator_Radioactivity.hh"
+#include "WCSimGenerator_NiBall.hh"
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TNRooTrackerVtx.hh"
 #include "TClonesArray.h"
+#include "TRandom3.h"
 
 class WCSimDetectorConstruction;
 class G4ParticleGun;
@@ -44,9 +46,11 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         void SetBeamPDG(G4int i)         { beampdg = i; };
 
         // These go with jhfNtuple
-        G4int GetVecRecNumber(){return vecRecNumber;}
+ 	
+	G4int GetVecRecNumber(){return vecRecNumber;}
         G4int GetMode() {return mode;};
         //InteractionType_t GetMode() {return mode;};
+	
         G4int GetVtxVol() {return vtxvol;};
         G4ThreeVector GetVtx() {return vtx;}
         G4int GetNpar() {return npar;};
@@ -56,7 +60,6 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4int GetTargetPDG() {return targetpdg;};
         G4double GetTargetEnergy() {return targetenergy;};
         G4ThreeVector GetTargetDir() {return targetdir;};
-
         // older ...
         G4double GetNuEnergy() {return nuEnergy;};
         G4double GetEnergy() {return energy;};
@@ -84,14 +87,21 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4bool   useLaserEvt;  //T. Akiri: Laser flag
         G4bool   useGPSEvt;
         G4bool   useRadonEvt; // G. Pronost: Radon flag
-        G4bool   useNiBall; // Pablo: Ni ball calibration
+        G4bool   useNiBallEvt; // Pablo: Ni ball calibration
         
         std::fstream inputFile;
         G4String vectorFileName;
         G4bool   GenerateVertexInRock;
        
 	// Variables for Ni ball
+	WCSimGenerator_NiBall* myNiBallGenerator;
         double fNiBallPosition[3];
+        double fNiGammaDirection[3];
+	double rn[4];
+	G4double niball_X;
+	G4double niball_Y;
+	G4double niball_Z;
+	TRandom3 * randGen;
 
  
         // Variables for Radioactive and Radon generators
@@ -174,6 +184,13 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         inline G4bool IsGeneratingVertexInRock() { return GenerateVertexInRock; }
         inline void SetGenerateVertexInRock(G4bool choice) { GenerateVertexInRock = choice; }
         
+        inline void SetNiBallX(G4double choice) { niball_X = choice; }
+        inline G4double GetNiBallX()  		{ return niball_X; }
+        inline void SetNiBallY(G4double choice) { niball_Y = choice; }
+        inline G4double GetNiBallY()  		{ return niball_Y; }
+        inline void SetNiBallZ(G4double choice) { niball_Z = choice; }
+        inline G4double GetNiBallZ()  		{ return niball_Z; }
+
         inline void SetRadioactiveTimeWindow(G4double choice) { radioactive_time_window = choice; }
         inline G4double GetRadioactiveTimeWindow()  		{ return radioactive_time_window; }
 

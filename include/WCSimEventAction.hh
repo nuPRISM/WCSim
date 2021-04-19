@@ -16,6 +16,7 @@
 #include "WCSimRootEvent.hh"
 #include "WCSimRootGeom.hh"
 
+#include "TRandom3.h"
 
 class WCSimRunAction;
 class WCSimPrimaryGeneratorAction;
@@ -28,6 +29,7 @@ private:
   WCSimPrimaryGeneratorAction* generatorAction;
   WCSimDetectorConstruction*   detectorConstructor;
 
+  TRandom3 * randGen;
   WCSimWCDAQMessenger* DAQMessenger;
   
 public:

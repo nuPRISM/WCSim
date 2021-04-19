@@ -10,6 +10,7 @@
 #include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4IonTable.hh"
+#include "G4Gamma.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 #include "Randomize.hh"
@@ -22,7 +23,6 @@
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 
-#include "TRandom3.h"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 //#define PAIR//B.Q
@@ -79,7 +79,7 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
   useGPSEvt    	= false;
   useRootrackerEvt 	= false;
   useRadonEvt        	= false;
-  useNiBall        	= false;
+  useNiBallEvt        	= false;
   
   fEvNum = 0;
   fInputRootrackerFile = NULL;
@@ -91,7 +91,8 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
   fRnSymmetry		= 1;
 
   // Nickel calibration variables
-  fNiBalPosition = {0.0,0.0,0.0};
+  myNiBallGenerator = 0;
+  for (int k=0; k<3; k++)  fNiBallPosition[k] = 0.0;
 }
 
 WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
@@ -106,7 +107,7 @@ WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
 
   if(useRootrackerEvt) delete fRooTrackerTree;
   if (myRn222Generator) delete myRn222Generator;
-  
+  if (myNiBallGenerator) delete myNiBallGenerator;
   delete particleGun;
   delete MyGPS;   //T. Akiri: Delete the GPS variable
   delete messenger;
@@ -484,36 +485,76 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   else if (useNiBallEvt)
     { //Pablo: add Ni Ball source
 	if ( !myNiBallGenerator ) {
-        myNiBallGenerator = new WCSimGenerator_NiBall(myDetector);
-//        myNiBallGenerator->Configuration(fRnScenario);
-      }
+        	myNiBallGenerator = new WCSimGenerator_NiBall(myDetector);
+		myNiBallGenerator->Initialize();
+  		randGen = new TRandom3();
+        }
 	MyGPS->ClearAll();
-	int gamma_multi = 1;
-	double gamma_pos[3];
-	randGen = new TRandom3();
-	double radius, theta, z; // Match the geometry of Ni ball (taken from SK)
-	radius = randGet->Rndm() * 2.5;
-	theta  = randGet->Rndm() * 2.0*3.14159265;
-	z      = randGet->Rndm() * 12.0 + 5.0;
-	gamma_pos[0] = fNiBalPosition[0] + radius*cos(theta);
-	gamma_pos[1] = fNiBalPosition[1] + radius*sin(theta);
-	gamma_pos[2] = fNiBalPosition[2] + z - 8.5;
-	G4ThreeVector position = G4ThreeVector(gamma_pos[0]*cm,gamma_pos[1]*cm,gamma_pos[2]*cm);
-	// Get gamma multiplicity
+     	fNiBallPosition[0] = niball_X;
+     	fNiBallPosition[1] = niball_Y;
+     	fNiBallPosition[2] = niball_Z;
+	for (int jj=0; jj<4; jj++) rn[jj] = randGen->Rndm();
+	myNiBallGenerator->SettingNiBall(fNiBallPosition,rn);
+	int mode = myNiBallGenerator->GetNiGammaMode();
+	int multi = myNiBallGenerator->GetNiGammaMultiplicity();
+	//std::cout << mode << " " << multi << std::endl;
+	double * genergy = myNiBallGenerator->GetNiGammaEnergy();
+	double * gposition = myNiBallGenerator->GetNiGammaPosition();
+	double theta,phi;
 
-	// Get gamma energy
 
-	for(int kk=0; kk<gamma_multi; kk++){
+	multi = 1; // to be removed when multiple vertices enabled
+	
+	G4ThreeVector position = G4ThreeVector(gposition[0]*cm,gposition[1]*cm,gposition[2]*cm);
+	for(int kk=0; kk<multi; kk++){
 	        MyGPS->AddaSource(1.);
        	 	MyGPS->SetCurrentSourceto(MyGPS->GetNumberofSource() - 1);	
 		MyGPS->SetParticleDefinition(G4Gamma::Definition());
                 MyGPS->GetCurrentSource()->GetEneDist()->SetEnergyDisType("Mono");
-                MyGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(Egamma[kk]);
+                MyGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(genergy[kk]*MeV);
                 MyGPS->GetCurrentSource()->GetPosDist()->SetPosDisType("Point");
                 MyGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(position);
-        
+		//std::cout << genergy[kk] << std::endl;
+		//std::cout << position << std::endl;
 	}
-    }
+	G4int number_of_sources = MyGPS->GetNumberofSource();
+
+        MyGPS->GeneratePrimaryVertex(anEvent);
+
+      // this will generate several primary vertices, to be activated when enabled in the hybrid version
+      // now we are taking just the most energetic gamma of the chosen mode
+	/*
+	//G4cout << "Sources: " << number_of_sources << G4endl;
+        SetNvtxs(number_of_sources);
+	*/
+
+        number_of_sources = 1; // to be removed when multiple vertices enabled
+        for( G4int u=0; u<number_of_sources; u++){
+        //
+		G4ThreeVector P   =anEvent->GetPrimaryVertex(u)->GetPrimary()->GetMomentum();
+                G4ThreeVector vtx =anEvent->GetPrimaryVertex(u)->GetPosition();
+                G4int pdg         =anEvent->GetPrimaryVertex(u)->GetPrimary()->GetPDGcode();
+                G4double E        = std::sqrt((P.dot(P)));
+	        theta  = randGen->Rndm()*3.14159265;
+	        phi    = randGen->Rndm()*2.0*3.14159265;
+       		fNiGammaDirection[0] = cos(phi)*sin(theta);
+       		fNiGammaDirection[1] = sin(phi)*sin(theta);
+       	 	fNiGammaDirection[2] = cos(theta);
+		G4ThreeVector dir=G4ThreeVector(fNiGammaDirection[0], fNiGammaDirection[1], fNiGammaDirection[2]);
+      		//G4cout << " vertex " << u << " of " << number_of_sources << " (" << vtx.x() << ", " << vtx.y() << ", " << vtx.z() << ") with pdg: " << pdg << " and energy: " << E << G4endl;
+        /*
+      		SetVtxs(u,vtx);
+      		SetBeamEnergy(E,u);
+		SetBeamPDG(pdg,u);
+		SetBeamDir(dir,u);
+	*/
+      		SetVtx(vtx);
+      		SetBeamEnergy(E);
+		SetBeamPDG(pdg);
+		SetBeamDir(dir);
+	}
+}
+
   else if (useRadonEvt)
     { //G. Pronost: Add Radon (adaptation of Radioactive event)
     
@@ -602,7 +643,7 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       	/*
       	SetVtxs(u,vtx);
       	SetBeamEnergy(E,u);
-      	//       SetBeamDir(dir);
+      	SetBeamDir(dir);
       	SetBeamPDG(pdg,u);
       	*/
       }

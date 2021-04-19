@@ -1,7 +1,0 @@
-include/WCSimGenerator_Radioactivity.hh:		static double RadonFormulaR(double* val, double* par);
-include/WCSimPrimaryGeneratorAction.hh:        G4bool   useRadonEvt; // G. Pronost: Radon flag
-include/WCSimPrimaryGeneratorMessenger.hh:  G4UIcmdWithAString* radonScalingCmd;
-macros/mPMT_radon_with_bias.mac:# Radon option
-src/WCSimGenerator_Radioactivity.cc:/** 	following SK-IV radon-like event distribution				**/
-src/WCSimPrimaryGeneratorAction.cc:  useRadonEvt        	= false;
-src/WCSimPrimaryGeneratorMessenger.cc:  genCmd->SetCandidates("muline gun laser gps rootracker radon");
