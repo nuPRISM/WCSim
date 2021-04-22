@@ -244,7 +244,7 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "rootracker"; }   //M. Scott: Addition of Rootracker events
     else if(myAction->IsUsingRadonEvtGenerator())
       { cv = "radon"; } // G. Pronost: Addition of Radon generator
-    else if(myAction->IsUsingRadonEvtGenerator())
+    else if(myAction->IsUsingNiBallEvtGenerator())
       { cv = "niball"; } // Pablo: Addition of Ni ball generator
   }
   
