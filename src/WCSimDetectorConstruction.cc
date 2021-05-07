@@ -120,6 +120,7 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
 
   messenger = new WCSimDetectorMessenger(this);
 
+
   // Get WCSIMDIR
   const char *wcsimdirenv = std::getenv("WCSIMDIR");
   if (!(wcsimdirenv && wcsimdirenv[0])) { // make sure it's non-empty

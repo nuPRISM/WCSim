@@ -32,6 +32,9 @@ class WCSimPrimaryGeneratorMessenger: public G4UImessenger
   G4UIcmdWithAString* fileNameCmd;
   G4UIcmdWithABool*   poisCmd;
   G4UIcmdWithADouble* poisMeanCmd;
+  G4UIcmdWithADouble* niball_x_Cmd;
+  G4UIcmdWithADouble* niball_y_Cmd;
+  G4UIcmdWithADouble* niball_z_Cmd;
 
 };
 

@@ -15,10 +15,10 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
 
-  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker");
+  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, rootracker, niball");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("muline");
-  genCmd->SetCandidates("muline gun laser gps rootracker");
+  genCmd->SetCandidates("muline gun laser gps rootracker niball");
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -39,6 +39,18 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   poisMeanCmd->SetParameterName("poissonMean", true);
   poisMeanCmd->SetDefaultValue(1);
 
+  niball_x_Cmd = new G4UIcmdWithADouble("/mygen/niball_x",this);
+  niball_x_Cmd->SetGuidance("Select X position for Nickel Ball");
+  niball_x_Cmd->SetParameterName("niball_x",true);
+  niball_x_Cmd->SetDefaultValue(0.0);
+  niball_y_Cmd = new G4UIcmdWithADouble("/mygen/niball_y",this);
+  niball_y_Cmd->SetGuidance("Select Y position for Nickel Ball");
+  niball_y_Cmd->SetParameterName("niball_y",true);
+  niball_y_Cmd->SetDefaultValue(0.0);
+  niball_z_Cmd = new G4UIcmdWithADouble("/mygen/niball_z",this);
+  niball_z_Cmd->SetGuidance("Select Z position for Nickel Ball");
+  niball_z_Cmd->SetParameterName("niball_z",true);
+  niball_z_Cmd->SetDefaultValue(0.0);
 }
 
 WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
@@ -59,6 +71,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "gun")
     {
@@ -67,6 +80,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
     {
@@ -75,6 +89,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(true);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "gps")
     {
@@ -83,6 +98,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetRootrackerEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(true);
+      myAction->SetNiBallEvtGenerator(false);
     }
     else if ( newValue == "rootracker")   //M. Scott: Addition of Rootracker events
     {
@@ -91,7 +107,18 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetGunEvtGenerator(false);
       myAction->SetLaserEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(false);
     }
+    else if ( newValue == "niball" ) // Pablo: Addition of Ni Ball gammas generator
+{
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetRootrackerEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetNiBallEvtGenerator(true);
+    }
+
   }
 
   if( command == fileNameCmd )
@@ -125,6 +152,20 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetPoissonPMTMean(poisMeanCmd->GetNewDoubleValue(newValue));
       G4cout << "PoissonPMT mean set to: " << poisMeanCmd->GetNewDoubleValue(newValue) << G4endl;
     }
+
+  if ( command==niball_x_Cmd )
+    {
+      myAction->SetNiBallX(StoD(newValue));
+    }
+  if ( command==niball_y_Cmd )
+    {
+      myAction->SetNiBallY(StoD(newValue));
+    }
+  if ( command==niball_z_Cmd )
+    {
+      myAction->SetNiBallZ(StoD(newValue));
+    }
+
 }
 
 G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
@@ -143,6 +184,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "gps"; }
     else if(myAction->IsUsingRootrackerEvtGenerator())
       { cv = "rootracker"; }   //M. Scott: Addition of Rootracker events
+    else if(myAction->IsUsingNiBallEvtGenerator())
+      { cv = "niball"; } // Pablo: Addition of Ni ball generator
   }
   
   return cv;

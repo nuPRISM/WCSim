@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include "WCSimRootOptions.hh"
+#include "WCSimGenerator_NiBall.hh"
 #include "TFile.h"
 #include "TTree.h"
 #include "TNRooTrackerVtx.hh"
@@ -84,7 +85,17 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         G4String vectorFileName;
         G4bool   GenerateVertexInRock;
         G4bool   usePoissonPMT;
+	G4bool   useNiBallEvt; // Pablo: Ni ball calibration
         G4double poissonPMTMean;
+
+        // Variables for Ni ball
+        WCSimGenerator_NiBall* myNiBallGenerator;
+        double fNiBallPosition[3];
+        double fNiGammaDirection[3];
+        double rn[4];
+        G4double niball_X;
+        G4double niball_Y;
+        G4double niball_Z;
 
         // These go with jhfNtuple
         //G4int mode;
@@ -155,9 +166,19 @@ class WCSimPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         inline G4bool IsGeneratingVertexInRock() { return GenerateVertexInRock; }
         inline void SetGenerateVertexInRock(G4bool choice) { GenerateVertexInRock = choice; }
 
+        inline void SetNiBallX(G4double choice) { niball_X = choice; }
+        inline G4double GetNiBallX()            { return niball_X; }
+        inline void SetNiBallY(G4double choice) { niball_Y = choice; }
+        inline G4double GetNiBallY()            { return niball_Y; }
+        inline void SetNiBallZ(G4double choice) { niball_Z = choice; }
+        inline G4double GetNiBallZ()            { return niball_Z; }
+
         inline void SetPoissonPMT(G4bool choice) { usePoissonPMT = choice; }
         inline G4bool IsUsingPoissonPMT(){ return usePoissonPMT; }
   
+        inline void SetNiBallEvtGenerator(G4bool choice)         { useNiBallEvt = choice; }
+        inline G4bool IsUsingNiBallEvtGenerator()                { return useNiBallEvt; }
+
         inline void SetPoissonPMTMean(G4double val){ poissonPMTMean = val; }
         inline G4double GetPoissonPMTMean(){ return poissonPMTMean; }
 };

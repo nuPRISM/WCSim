@@ -5,6 +5,7 @@
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
 #include "G4GeneralParticleSource.hh"
+#include "G4Gamma.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ThreeVector.hh"
@@ -19,7 +20,6 @@
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 
-#include "TRandom3.h"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
@@ -75,10 +75,15 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
   useLaserEvt  = false;
   useGPSEvt    = false;
   useRootrackerEvt = false;
+  useNiBallEvt          = false;
   
   fEvNum = 0;
   fInputRootrackerFile = NULL;
   fNEntries = 1;
+
+  // Nickel calibration variables
+  myNiBallGenerator = 0;
+  for (int k=0; k<3; k++)  fNiBallPosition[k] = 0.0;
 }
 
 WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
@@ -92,6 +97,8 @@ WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
     inputFile.close();
 
     if(useRootrackerEvt) delete fRooTrackerTree;
+    if (myNiBallGenerator) delete myNiBallGenerator;
+
 
     delete particleGun;
     delete MyGPS;   //T. Akiri: Delete the GPS variable
@@ -414,6 +421,78 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       SetBeamDir(dir);
       SetBeamPDG(pdg);
     }
+
+  else if (useNiBallEvt)
+    { //Pablo: add Ni Ball source
+        if ( !myNiBallGenerator ) {
+                myNiBallGenerator = new WCSimGenerator_NiBall(myDetector);
+                myNiBallGenerator->Initialize();
+        }
+        MyGPS->ClearAll();
+        fNiBallPosition[0] = niball_X;
+        fNiBallPosition[1] = niball_Y;
+        fNiBallPosition[2] = niball_Z;
+        for (int jj=0; jj<4; jj++) rn[jj] = G4UniformRand();
+        myNiBallGenerator->SettingNiBall(fNiBallPosition,rn);
+        int mode = myNiBallGenerator->GetNiGammaMode();
+        int multi = myNiBallGenerator->GetNiGammaMultiplicity();
+        //std::cout << mode << " " << multi << std::endl;
+        double * genergy = myNiBallGenerator->GetNiGammaEnergy();
+        double * gposition = myNiBallGenerator->GetNiGammaPosition();
+        double theta,phi;
+
+
+        multi = 1; // to be removed when multiple vertices enabled
+
+        G4ThreeVector position = G4ThreeVector(gposition[0]*cm,gposition[1]*cm,gposition[2]*cm);
+        for(int kk=0; kk<multi; kk++){
+                MyGPS->AddaSource(1.);
+                MyGPS->SetCurrentSourceto(MyGPS->GetNumberofSource() - 1);
+                MyGPS->SetParticleDefinition(G4Gamma::Definition());
+                MyGPS->GetCurrentSource()->GetEneDist()->SetEnergyDisType("Mono");
+                MyGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(genergy[kk]*MeV);
+                MyGPS->GetCurrentSource()->GetPosDist()->SetPosDisType("Point");
+                MyGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(position);
+                //std::cout << genergy[kk] << std::endl;
+                //std::cout << position << std::endl;
+        }
+        G4int number_of_sources = MyGPS->GetNumberofSource();
+
+        MyGPS->GeneratePrimaryVertex(anEvent);
+
+      // this will generate several primary vertices, to be activated when enabled in the hybrid version
+      // now we are taking just the most energetic gamma of the chosen mode
+      /*
+        //G4cout << "Sources: " << number_of_sources << G4endl;
+        SetNvtxs(number_of_sources);
+      */
+
+        number_of_sources = 1; // to be removed when multiple vertices enabled
+        for( G4int u=0; u<number_of_sources; u++){
+                G4ThreeVector P   =anEvent->GetPrimaryVertex(u)->GetPrimary()->GetMomentum();
+                G4ThreeVector vtx =anEvent->GetPrimaryVertex(u)->GetPosition();
+                G4int pdg         =anEvent->GetPrimaryVertex(u)->GetPrimary()->GetPDGcode();
+                G4double E        = std::sqrt((P.dot(P)));
+                theta  = G4UniformRand()*3.14159265;
+                phi    = G4UniformRand()*2.0*3.14159265;
+                fNiGammaDirection[0] = cos(phi)*sin(theta);
+                fNiGammaDirection[1] = sin(phi)*sin(theta);
+                fNiGammaDirection[2] = cos(theta);
+                G4ThreeVector dir=G4ThreeVector(fNiGammaDirection[0], fNiGammaDirection[1], fNiGammaDirection[2]);
+		//G4cout << " vertex " << u << " of " << number_of_sources << " (" << vtx.x() << ", " << vtx.y() << ", " << vtx.z() << ") with pdg: " << pdg << " and energy: " << E << G4endl;
+		/*
+                SetVtxs(u,vtx);
+                SetBeamEnergy(E,u);
+                SetBeamPDG(pdg,u);
+                SetBeamDir(dir,u);
+                */
+                SetVtx(vtx);
+                SetBeamEnergy(E);
+                SetBeamPDG(pdg);
+                SetBeamDir(dir);
+        }
+}
+
   else if (useGPSEvt)
     {
       MyGPS->GeneratePrimaryVertex(anEvent);

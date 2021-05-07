@@ -276,6 +276,7 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
   c1->cd(2); hvtx1->Draw();
   c1->cd(3); hvtx2->Draw();
   c1->cd(4); h1->Draw();
+  c1->SaveAs("plots.pdf");
   
   std::cout<<"num_trig "<<num_trig<<"\n";
 }
